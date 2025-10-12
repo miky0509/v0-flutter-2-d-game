@@ -68,7 +68,7 @@ export default function LingoLeapGame() {
   const PLAYER_HEIGHT = 50
   const GROUND_Y = 350
   const GRAVITY = 1.2
-  const JUMP_FORCE = -12
+  const JUMP_FORCE = -15
 
   // Load high score
   useEffect(() => {
