@@ -68,10 +68,13 @@ interface LevelProgress {
 
 export default function LingoLeapGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null) // Added for responsive canvas
   const [gameState, setGameState] = useState<GameState>("menu")
   const [score, setScore] = useState(0)
   const [highScore, setHighScore] = useState(0)
   const [currentChallenge, setCurrentChallenge] = useState<Challenge | null>(null)
+
+  const [canvasDimensions, setCanvasDimensions] = useState({ width: 800, height: 500 })
 
   const [vocabulary, setVocabulary] = useState<VocabularyWord[]>(DEFAULT_VOCABULARY)
   const [selectedSection, setSelectedSection] = useState<string>("Greetings")
@@ -105,13 +108,34 @@ export default function LingoLeapGame() {
     lastChallengeX: 0,
   })
 
-  const CANVAS_WIDTH = 800
-  const CANVAS_HEIGHT = 500
-  const PLAYER_WIDTH = 40
-  const PLAYER_HEIGHT = 50
-  const GROUND_Y = 350
+  const CANVAS_WIDTH = canvasDimensions.width
+  const CANVAS_HEIGHT = canvasDimensions.height
+  const PLAYER_WIDTH = CANVAS_WIDTH * 0.05
+  const PLAYER_HEIGHT = CANVAS_HEIGHT * 0.1
+  const GROUND_Y = CANVAS_HEIGHT * 0.7
   const GRAVITY = 0.6
   const JUMP_FORCE = -15
+
+  useEffect(() => {
+    const updateCanvasSize = () => {
+      if (containerRef.current) {
+        const containerWidth = containerRef.current.clientWidth
+        const maxWidth = Math.min(containerWidth - 32, 800) // Max 800px or container width
+        const aspectRatio = 500 / 800
+        const height = maxWidth * aspectRatio
+
+        setCanvasDimensions({
+          width: maxWidth,
+          height: Math.max(height, 400), // Minimum height of 400px
+        })
+      }
+    }
+
+    updateCanvasSize()
+    window.addEventListener("resize", updateCanvasSize)
+
+    return () => window.removeEventListener("resize", updateCanvasSize)
+  }, [])
 
   useEffect(() => {
     const saved = localStorage.getItem("lingoLeapHighScore")
@@ -308,7 +332,7 @@ export default function LingoLeapGame() {
     const initialSpeed = levelProgress.currentLevel === 1 ? 3 : 5
 
     gameStateRef.current = {
-      playerY: GROUND_Y,
+      playerY: GROUND_Y, // Use responsive GROUND_Y
       playerVelocityY: 0,
       playerX: 100,
       isJumping: false,
@@ -448,10 +472,10 @@ export default function LingoLeapGame() {
 
       ctx.fillStyle = "#90EE90"
       ctx.beginPath()
-      ctx.moveTo(0, GROUND_Y + 20)
+      ctx.moveTo(0, GROUND_Y + 20) // Use responsive GROUND_Y
       for (let i = 0; i <= CANVAS_WIDTH; i += 50) {
         const offset = Math.sin((i + state.gameSpeed * 2) * 0.02) * 20
-        ctx.lineTo(i, GROUND_Y + 20 + offset)
+        ctx.lineTo(i, GROUND_Y + 20 + offset) // Use responsive GROUND_Y
       }
       ctx.lineTo(CANVAS_WIDTH, CANVAS_HEIGHT)
       ctx.lineTo(0, CANVAS_HEIGHT)
@@ -459,11 +483,11 @@ export default function LingoLeapGame() {
       ctx.fill()
 
       ctx.fillStyle = "#8B4513"
-      ctx.fillRect(0, GROUND_Y + PLAYER_HEIGHT, CANVAS_WIDTH, CANVAS_HEIGHT - GROUND_Y - PLAYER_HEIGHT)
+      ctx.fillRect(0, GROUND_Y + PLAYER_HEIGHT, CANVAS_WIDTH, CANVAS_HEIGHT - GROUND_Y - PLAYER_HEIGHT) // Use responsive values
 
       // Draw grass on top of ground
       ctx.fillStyle = "#228B22"
-      ctx.fillRect(0, GROUND_Y + PLAYER_HEIGHT, CANVAS_WIDTH, 10)
+      ctx.fillRect(0, GROUND_Y + PLAYER_HEIGHT, CANVAS_WIDTH, 10) // Use responsive GROUND_Y
 
       // Draw grass blades
       ctx.strokeStyle = "#2F8B2F"
@@ -471,8 +495,8 @@ export default function LingoLeapGame() {
       for (let i = 0; i < CANVAS_WIDTH; i += 8) {
         const grassX = i + ((state.gameSpeed * 2) % 8)
         ctx.beginPath()
-        ctx.moveTo(grassX, GROUND_Y + PLAYER_HEIGHT + 10)
-        ctx.lineTo(grassX - 2, GROUND_Y + PLAYER_HEIGHT + 3)
+        ctx.moveTo(grassX, GROUND_Y + PLAYER_HEIGHT + 10) // Use responsive GROUND_Y
+        ctx.lineTo(grassX - 2, GROUND_Y + PLAYER_HEIGHT + 3) // Use responsive GROUND_Y
         ctx.stroke()
       }
 
@@ -487,36 +511,36 @@ export default function LingoLeapGame() {
 
         // Draw tree trunk
         ctx.fillStyle = "#654321"
-        ctx.fillRect(tree.x - 8, GROUND_Y + PLAYER_HEIGHT - 40, 16, 40)
+        ctx.fillRect(tree.x - 8, GROUND_Y + PLAYER_HEIGHT - 40, 16, 40) // Use responsive GROUND_Y
 
         // Draw tree foliage
         if (tree.type === 0) {
           // Round tree
           ctx.fillStyle = "#228B22"
           ctx.beginPath()
-          ctx.arc(tree.x, GROUND_Y + PLAYER_HEIGHT - 50, 30, 0, Math.PI * 2)
+          ctx.arc(tree.x, GROUND_Y + PLAYER_HEIGHT - 50, 30, 0, Math.PI * 2) // Use responsive GROUND_Y
           ctx.fill()
 
           // Darker shade for depth
           ctx.fillStyle = "#1a6b1a"
           ctx.beginPath()
-          ctx.arc(tree.x - 10, GROUND_Y + PLAYER_HEIGHT - 55, 20, 0, Math.PI * 2)
+          ctx.arc(tree.x - 10, GROUND_Y + PLAYER_HEIGHT - 55, 20, 0, Math.PI * 2) // Use responsive GROUND_Y
           ctx.fill()
         } else {
           // Triangle tree
           ctx.fillStyle = "#228B22"
           ctx.beginPath()
-          ctx.moveTo(tree.x, GROUND_Y + PLAYER_HEIGHT - 70)
-          ctx.lineTo(tree.x - 25, GROUND_Y + PLAYER_HEIGHT - 30)
-          ctx.lineTo(tree.x + 25, GROUND_Y + PLAYER_HEIGHT - 30)
+          ctx.moveTo(tree.x, GROUND_Y + PLAYER_HEIGHT - 70) // Use responsive GROUND_Y
+          ctx.lineTo(tree.x - 25, GROUND_Y + PLAYER_HEIGHT - 30) // Use responsive GROUND_Y
+          ctx.lineTo(tree.x + 25, GROUND_Y + PLAYER_HEIGHT - 30) // Use responsive GROUND_Y
           ctx.closePath()
           ctx.fill()
 
           // Second layer
           ctx.beginPath()
-          ctx.moveTo(tree.x, GROUND_Y + PLAYER_HEIGHT - 55)
-          ctx.lineTo(tree.x - 20, GROUND_Y + PLAYER_HEIGHT - 25)
-          ctx.lineTo(tree.x + 20, GROUND_Y + PLAYER_HEIGHT - 25)
+          ctx.moveTo(tree.x, GROUND_Y + PLAYER_HEIGHT - 55) // Use responsive GROUND_Y
+          ctx.lineTo(tree.x - 20, GROUND_Y + PLAYER_HEIGHT - 25) // Use responsive GROUND_Y
+          ctx.lineTo(tree.x + 20, GROUND_Y + PLAYER_HEIGHT - 25) // Use responsive GROUND_Y
           ctx.closePath()
           ctx.fill()
         }
@@ -527,7 +551,8 @@ export default function LingoLeapGame() {
         state.playerY += state.playerVelocityY
 
         if (state.playerY >= GROUND_Y) {
-          state.playerY = GROUND_Y
+          // Use responsive GROUND_Y
+          state.playerY = GROUND_Y // Use responsive GROUND_Y
           state.playerVelocityY = 0
           state.isJumping = false
         }
@@ -537,7 +562,7 @@ export default function LingoLeapGame() {
       const playerY = state.isSliding ? state.playerY + PLAYER_HEIGHT / 2 : state.playerY
 
       ctx.fillStyle = "#FF6B6B"
-      ctx.fillRect(state.playerX, playerY, PLAYER_WIDTH, playerHeight)
+      ctx.fillRect(state.playerX, playerY, PLAYER_WIDTH, playerHeight) // Use responsive values
 
       ctx.fillStyle = "#000"
       ctx.fillRect(state.playerX + 10, playerY + 10, 5, 5)
@@ -572,70 +597,70 @@ export default function LingoLeapGame() {
           // Draw the pit/chasm with depth
           // Top edge highlight
           ctx.fillStyle = "#654321"
-          ctx.fillRect(currentChallenge.x - 5, GROUND_Y + PLAYER_HEIGHT, gapWidth + 10, 5)
+          ctx.fillRect(currentChallenge.x - 5, GROUND_Y + PLAYER_HEIGHT, gapWidth + 10, 5) // Use responsive GROUND_Y
 
           // Main pit - gradient from dark at bottom to lighter at top
           const pitGradient = ctx.createLinearGradient(
             currentChallenge.x,
-            GROUND_Y + PLAYER_HEIGHT,
+            GROUND_Y + PLAYER_HEIGHT, // Use responsive GROUND_Y
             currentChallenge.x,
-            GROUND_Y + PLAYER_HEIGHT + gapDepth,
+            GROUND_Y + PLAYER_HEIGHT + gapDepth, // Use responsive GROUND_Y
           )
           pitGradient.addColorStop(0, "#1a1a1a")
           pitGradient.addColorStop(0.3, "#0d0d0d")
           pitGradient.addColorStop(1, "#000000")
           ctx.fillStyle = pitGradient
-          ctx.fillRect(currentChallenge.x, GROUND_Y + PLAYER_HEIGHT, gapWidth, gapDepth)
+          ctx.fillRect(currentChallenge.x, GROUND_Y + PLAYER_HEIGHT, gapWidth, gapDepth) // Use responsive GROUND_Y
 
           // Left wall shadow (darker)
           const leftWallGradient = ctx.createLinearGradient(
             currentChallenge.x,
-            GROUND_Y + PLAYER_HEIGHT,
+            GROUND_Y + PLAYER_HEIGHT, // Use responsive GROUND_Y
             currentChallenge.x + 15,
-            GROUND_Y + PLAYER_HEIGHT,
+            GROUND_Y + PLAYER_HEIGHT, // Use responsive GROUND_Y
           )
           leftWallGradient.addColorStop(0, "#2a1810")
           leftWallGradient.addColorStop(1, "rgba(42, 24, 16, 0)")
           ctx.fillStyle = leftWallGradient
-          ctx.fillRect(currentChallenge.x, GROUND_Y + PLAYER_HEIGHT, 15, gapDepth)
+          ctx.fillRect(currentChallenge.x, GROUND_Y + PLAYER_HEIGHT, 15, gapDepth) // Use responsive GROUND_Y
 
           // Right wall shadow
           const rightWallGradient = ctx.createLinearGradient(
             currentChallenge.x + gapWidth - 15,
-            GROUND_Y + PLAYER_HEIGHT,
+            GROUND_Y + PLAYER_HEIGHT, // Use responsive GROUND_Y
             currentChallenge.x + gapWidth,
-            GROUND_Y + PLAYER_HEIGHT,
+            GROUND_Y + PLAYER_HEIGHT, // Use responsive GROUND_Y
           )
           rightWallGradient.addColorStop(0, "rgba(42, 24, 16, 0)")
           rightWallGradient.addColorStop(1, "#2a1810")
           ctx.fillStyle = rightWallGradient
-          ctx.fillRect(currentChallenge.x + gapWidth - 15, GROUND_Y + PLAYER_HEIGHT, 15, gapDepth)
+          ctx.fillRect(currentChallenge.x + gapWidth - 15, GROUND_Y + PLAYER_HEIGHT, 15, gapDepth) // Use responsive GROUND_Y
 
           // Add some cracks on the edges
           ctx.strokeStyle = "#4a3020"
           ctx.lineWidth = 2
           ctx.beginPath()
-          ctx.moveTo(currentChallenge.x - 3, GROUND_Y + PLAYER_HEIGHT)
-          ctx.lineTo(currentChallenge.x + 5, GROUND_Y + PLAYER_HEIGHT + 15)
+          ctx.moveTo(currentChallenge.x - 3, GROUND_Y + PLAYER_HEIGHT) // Use responsive GROUND_Y
+          ctx.lineTo(currentChallenge.x + 5, GROUND_Y + PLAYER_HEIGHT + 15) // Use responsive GROUND_Y
           ctx.stroke()
 
           ctx.beginPath()
-          ctx.moveTo(currentChallenge.x + gapWidth + 3, GROUND_Y + PLAYER_HEIGHT)
-          ctx.lineTo(currentChallenge.x + gapWidth - 5, GROUND_Y + PLAYER_HEIGHT + 15)
+          ctx.moveTo(currentChallenge.x + gapWidth + 3, GROUND_Y + PLAYER_HEIGHT) // Use responsive GROUND_Y
+          ctx.lineTo(currentChallenge.x + gapWidth - 5, GROUND_Y + PLAYER_HEIGHT + 15) // Use responsive GROUND_Y
           ctx.stroke()
 
           // Bottom of pit (very dark with some detail)
           ctx.fillStyle = "#050505"
-          ctx.fillRect(currentChallenge.x + 10, GROUND_Y + PLAYER_HEIGHT + gapDepth - 20, gapWidth - 20, 20)
+          ctx.fillRect(currentChallenge.x + 10, GROUND_Y + PLAYER_HEIGHT + gapDepth - 20, gapWidth - 20, 20) // Use responsive GROUND_Y
 
           // Add some spikes or rocks at the bottom for danger
           ctx.fillStyle = "#1a1a1a"
           for (let i = 0; i < 4; i++) {
             const spikeX = currentChallenge.x + 15 + i * 15
             ctx.beginPath()
-            ctx.moveTo(spikeX, GROUND_Y + PLAYER_HEIGHT + gapDepth - 5)
-            ctx.lineTo(spikeX + 5, GROUND_Y + PLAYER_HEIGHT + gapDepth - 20)
-            ctx.lineTo(spikeX + 10, GROUND_Y + PLAYER_HEIGHT + gapDepth - 5)
+            ctx.moveTo(spikeX, GROUND_Y + PLAYER_HEIGHT + gapDepth - 5) // Use responsive GROUND_Y
+            ctx.lineTo(spikeX + 5, GROUND_Y + PLAYER_HEIGHT + gapDepth - 20) // Use responsive GROUND_Y
+            ctx.lineTo(spikeX + 10, GROUND_Y + PLAYER_HEIGHT + gapDepth - 5) // Use responsive GROUND_Y
             ctx.fill()
           }
 
@@ -644,7 +669,7 @@ export default function LingoLeapGame() {
             !currentChallenge.cleared &&
             state.playerX + PLAYER_WIDTH > currentChallenge.x &&
             state.playerX < currentChallenge.x + gapWidth &&
-            state.playerY >= GROUND_Y &&
+            state.playerY >= GROUND_Y && // Use responsive GROUND_Y
             !state.isJumping
           ) {
             endGame()
@@ -653,13 +678,13 @@ export default function LingoLeapGame() {
           const obstacleHeight = 60
           const obstacleWidth = 45
           const obstacleX = currentChallenge.x
-          const obstacleY = GROUND_Y + PLAYER_HEIGHT - obstacleHeight
+          const obstacleY = GROUND_Y + PLAYER_HEIGHT - obstacleHeight // Use responsive GROUND_Y
 
           // Log shadow on ground
           ctx.fillStyle = "rgba(0, 0, 0, 0.3)"
           ctx.ellipse(
             obstacleX + obstacleWidth / 2,
-            GROUND_Y + PLAYER_HEIGHT + 5,
+            GROUND_Y + PLAYER_HEIGHT + 5, // Use responsive GROUND_Y
             obstacleWidth / 2 + 5,
             8,
             0,
@@ -727,7 +752,7 @@ export default function LingoLeapGame() {
             !currentChallenge.cleared &&
             state.playerX + PLAYER_WIDTH > obstacleX &&
             state.playerX < obstacleX + obstacleWidth &&
-            state.playerY + PLAYER_HEIGHT > obstacleY &&
+            state.playerY + PLAYER_HEIGHT > obstacleY && // Use responsive values
             !state.isSliding
           ) {
             endGame()
@@ -784,58 +809,65 @@ export default function LingoLeapGame() {
   )
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-cyan-400 to-blue-500 flex items-center justify-center p-4">
-      <div className="w-full max-w-4xl">
+    <div className="min-h-screen bg-gradient-to-b from-cyan-400 to-blue-500 flex items-center justify-center p-2 sm:p-4">
+      <div ref={containerRef} className="w-full max-w-4xl">
         {gameState === "menu" && (
-          <Card className="p-8 bg-gradient-to-b from-cyan-300 to-blue-400 border-4 border-gray-700 relative overflow-hidden">
+          <Card className="p-4 sm:p-8 bg-gradient-to-b from-cyan-300 to-blue-400 border-4 border-gray-700 relative overflow-hidden">
             {/* Header */}
-            <div className="flex justify-between items-start mb-8">
-              <h1 className="text-5xl font-bold text-white drop-shadow-lg" style={{ textShadow: "3px 3px 0 #8B4513" }}>
+            <div className="flex justify-between items-start mb-4 sm:mb-8 flex-wrap gap-4">
+              <h1
+                className="text-3xl sm:text-5xl font-bold text-white drop-shadow-lg"
+                style={{ textShadow: "3px 3px 0 #8B4513" }}
+              >
                 LINGO LEAP
               </h1>
-              <div className="flex gap-4 items-center">
-                <div className="bg-orange-400 rounded-full p-3 border-4 border-orange-600 relative">
-                  <span className="text-3xl">🎒</span>
-                  <div className="absolute -bottom-1 -right-1 bg-white rounded-full w-7 h-7 flex items-center justify-center border-2 border-orange-600 text-sm font-bold">
+              <div className="flex gap-2 sm:gap-4 items-center">
+                <div className="bg-orange-400 rounded-full p-2 sm:p-3 border-2 sm:border-4 border-orange-600 relative">
+                  <span className="text-2xl sm:text-3xl">🎒</span>
+                  <div className="absolute -bottom-1 -right-1 bg-white rounded-full w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center border-2 border-orange-600 text-xs sm:text-sm font-bold">
                     7
                   </div>
                 </div>
-                <div className="bg-yellow-400 rounded-full px-4 py-2 border-4 border-yellow-600 flex items-center gap-2">
-                  <span className="text-2xl">🪙</span>
-                  <span className="text-xl font-bold text-white">{levelProgress.totalCoins}</span>
+                <div className="bg-yellow-400 rounded-full px-3 py-1 sm:px-4 sm:py-2 border-2 sm:border-4 border-yellow-600 flex items-center gap-1 sm:gap-2">
+                  <span className="text-xl sm:text-2xl">🪙</span>
+                  <span className="text-lg sm:text-xl font-bold text-white">{levelProgress.totalCoins}</span>
                 </div>
               </div>
             </div>
 
             {/* Level badges */}
-            <div className="relative min-h-[400px] mb-8">
+            <div className="relative min-h-[300px] sm:min-h-[400px] mb-4 sm:mb-8">
               {LEVELS.map((level, index) => {
                 const isUnlocked = levelProgress.unlockedLevels.includes(level.id)
-                const yPosition = 50 + index * 100
-                const xPosition = index % 2 === 0 ? 150 : 450
+                const yPosition = 30 + index * 70
+                const xPosition = index % 2 === 0 ? 50 : 200
 
                 return (
                   <div
                     key={level.id}
                     className="absolute transition-all duration-300 hover:scale-110"
-                    style={{ top: `${yPosition}px`, left: `${xPosition}px` }}
+                    style={{
+                      top: `${yPosition}px`,
+                      left: `${xPosition}px`,
+                      transform: "scale(0.8)",
+                    }}
                   >
                     <button onClick={() => selectLevel(level.id)} disabled={!isUnlocked} className="relative group">
                       {/* Badge circle */}
                       <div
-                        className={`w-24 h-24 rounded-full border-8 flex items-center justify-center text-5xl transition-all ${
+                        className={`w-16 h-16 sm:w-24 sm:h-24 rounded-full border-4 sm:border-8 flex items-center justify-center text-3xl sm:text-5xl transition-all ${
                           isUnlocked
                             ? "border-white shadow-lg cursor-pointer hover:shadow-2xl"
                             : "border-gray-400 opacity-60 cursor-not-allowed"
                         }`}
                         style={{ backgroundColor: isUnlocked ? level.color : "#94a3b8" }}
                       >
-                        {isUnlocked ? level.icon : <Lock className="w-10 h-10 text-white" />}
+                        {isUnlocked ? level.icon : <Lock className="w-6 h-6 sm:w-10 sm:h-10 text-white" />}
                       </div>
 
                       {/* Level label */}
-                      <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-orange-400 px-4 py-1 rounded border-2 border-orange-600 whitespace-nowrap">
-                        <span className="text-sm font-bold text-white drop-shadow">{level.name}</span>
+                      <div className="absolute -bottom-6 sm:-bottom-8 left-1/2 -translate-x-1/2 bg-orange-400 px-2 py-0.5 sm:px-4 sm:py-1 rounded border-2 border-orange-600 whitespace-nowrap">
+                        <span className="text-xs sm:text-sm font-bold text-white drop-shadow">{level.name}</span>
                       </div>
                     </button>
                   </div>
@@ -844,27 +876,27 @@ export default function LingoLeapGame() {
             </div>
 
             {/* Bottom navigation */}
-            <div className="flex justify-center gap-4 mt-16">
+            <div className="flex justify-center gap-2 sm:gap-4 mt-8 sm:mt-16 flex-wrap">
               <Button
                 size="lg"
                 onClick={() => selectLevel(levelProgress.currentLevel)}
-                className="bg-blue-500 hover:bg-blue-600 text-white font-bold text-xl px-8 py-6 rounded-full border-4 border-blue-700 shadow-lg"
+                className="bg-blue-500 hover:bg-blue-600 text-white font-bold text-lg sm:text-xl px-6 py-4 sm:px-8 sm:py-6 rounded-full border-4 border-blue-700 shadow-lg"
               >
                 PLAY
               </Button>
               <Button
                 size="lg"
-                className="bg-orange-500 hover:bg-orange-600 text-white font-bold text-xl px-8 py-6 rounded-full border-4 border-orange-700 shadow-lg"
+                className="bg-orange-500 hover:bg-orange-600 text-white font-bold text-lg sm:text-xl px-6 py-4 sm:px-8 sm:py-6 rounded-full border-4 border-orange-700 shadow-lg"
               >
-                <ShoppingCart className="w-6 h-6 mr-2" />
+                <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6 mr-2" />
                 STORE
               </Button>
               <Button
                 size="lg"
                 onClick={() => setGameState("admin")}
-                className="bg-blue-500 hover:bg-blue-600 text-white font-bold text-xl p-6 rounded-full border-4 border-blue-700 shadow-lg"
+                className="bg-blue-500 hover:bg-blue-600 text-white font-bold text-lg sm:text-xl p-4 sm:p-6 rounded-full border-4 border-blue-700 shadow-lg"
               >
-                <Settings className="w-6 h-6" />
+                <Settings className="w-5 h-5 sm:w-6 sm:h-6" />
               </Button>
             </div>
           </Card>
@@ -1016,24 +1048,29 @@ export default function LingoLeapGame() {
         )}
 
         {gameState === "start" && (
-          <Card className="p-8 text-center space-y-6">
-            <h1 className="text-5xl font-bold text-primary">
+          <Card className="p-4 sm:p-8 text-center space-y-4 sm:space-y-6">
+            <h1 className="text-3xl sm:text-5xl font-bold text-primary">
               {LEVELS.find((l) => l.id === levelProgress.currentLevel)?.name}
             </h1>
-            <p className="text-xl text-muted-foreground">Learn Spanish while you play!</p>
+            <p className="text-lg sm:text-xl text-muted-foreground">Learn Spanish while you play!</p>
             <div className="space-y-2">
-              <p className="text-lg">Jump over gaps by selecting the correct translation</p>
-              <p className="text-lg">Slide under obstacles by recognizing the word</p>
-              <p className="text-2xl font-bold text-primary mt-4">
+              <p className="text-base sm:text-lg">Jump over gaps by selecting the correct translation</p>
+              <p className="text-base sm:text-lg">Slide under obstacles by recognizing the word</p>
+              <p className="text-xl sm:text-2xl font-bold text-primary mt-4">
                 Goal: {LEVELS.find((l) => l.id === levelProgress.currentLevel)?.pointsRequired} points
               </p>
             </div>
-            <div className="text-2xl font-semibold">High Score: {highScore}</div>
-            <div className="flex gap-4 justify-center">
-              <Button size="lg" onClick={() => setGameState("menu")} variant="outline" className="text-xl px-8 py-6">
+            <div className="text-xl sm:text-2xl font-semibold">High Score: {highScore}</div>
+            <div className="flex gap-2 sm:gap-4 justify-center flex-wrap">
+              <Button
+                size="lg"
+                onClick={() => setGameState("menu")}
+                variant="outline"
+                className="text-lg sm:text-xl px-6 py-4 sm:px-8 sm:py-6"
+              >
                 Back to Menu
               </Button>
-              <Button size="lg" onClick={startGame} className="text-xl px-8 py-6">
+              <Button size="lg" onClick={startGame} className="text-lg sm:text-xl px-6 py-4 sm:px-8 sm:py-6">
                 Start Game
               </Button>
             </div>
@@ -1041,44 +1078,47 @@ export default function LingoLeapGame() {
         )}
 
         {gameState === "playing" && (
-          <div className="space-y-4">
-            <Card className="p-6">
+          <div className="space-y-2 sm:space-y-4">
+            <Card className="p-2 sm:p-6">
               <div className="flex justify-center">
                 <canvas
                   ref={canvasRef}
                   width={CANVAS_WIDTH}
                   height={CANVAS_HEIGHT}
-                  className="border-4 border-primary rounded-lg"
+                  className="border-2 sm:border-4 border-primary rounded-lg w-full h-auto"
+                  style={{ maxWidth: "100%", height: "auto" }}
                 />
               </div>
             </Card>
 
             {currentChallenge && (
-              <Card className="p-6">
-                <div className="text-center space-y-4">
-                  <div className="text-2xl font-bold">
+              <Card className="p-3 sm:p-6">
+                <div className="text-center space-y-2 sm:space-y-4">
+                  <div className="text-lg sm:text-2xl font-bold">
                     {levelProgress.currentLevel === 1
                       ? currentChallenge.type === "jump"
                         ? "Translate:"
                         : "Recognize:"
                       : "Recognize:"}
                   </div>
-                  <div className="text-4xl font-bold text-primary">
-                    <span className={currentChallenge.word.length <= 3 ? "text-7xl" : ""}>{currentChallenge.word}</span>
+                  <div className="text-2xl sm:text-4xl font-bold text-primary">
+                    <span className={currentChallenge.word.length <= 3 ? "text-4xl sm:text-7xl" : ""}>
+                      {currentChallenge.word}
+                    </span>
                   </div>
-                  <div className="flex gap-4 justify-center">
+                  <div className="flex gap-2 sm:gap-4 justify-center flex-wrap">
                     {currentChallenge.options.map((option, index) => (
                       <Button
                         key={index}
                         size="lg"
                         onClick={() => (currentChallenge.type === "jump" ? handleJump(option) : handleSlide(option))}
-                        className="text-xl px-6 py-6"
+                        className="text-base sm:text-xl px-4 py-4 sm:px-6 sm:py-6"
                       >
                         {option}
                       </Button>
                     ))}
                   </div>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-xs sm:text-sm text-muted-foreground">
                     {currentChallenge.type === "jump" ? "Click to JUMP" : "Click to SLIDE"}
                   </div>
                 </div>
