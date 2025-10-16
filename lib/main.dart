@@ -584,6 +584,14 @@ class _MainGameScreenState extends State<MainGameScreen>
 
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+    final screenWidth = screenSize.width;
+    final screenHeight = screenSize.height;
+    
+    // Calculate responsive dimensions
+    final gameHeight = screenHeight * 0.6; // 60% of screen height
+    final groundY = gameHeight * 0.7; // Ground at 70% of game height
+    
     return Scaffold(
       body: Stack(
         children: [
@@ -598,32 +606,39 @@ class _MainGameScreenState extends State<MainGameScreen>
             ),
           ),
 
-          // Game Canvas
-          CustomPaint(
-            painter: GamePainter(
-              characterX: characterX,
-              characterY: characterY,
-              challengeX: challengeX,
-              currentChallenge: currentChallenge,
-              options: options,
-              obstacleX: obstacleX,
-              obstacleWord: obstacleWord,
-            ),
-            size: Size.infinite,
+          // Game Canvas - Made responsive with LayoutBuilder
+          LayoutBuilder(
+            builder: (context, constraints) {
+              return CustomPaint(
+                painter: GamePainter(
+                  characterX: characterX,
+                  characterY: characterY * (constraints.maxHeight / 500),
+                  challengeX: challengeX,
+                  currentChallenge: currentChallenge,
+                  options: options,
+                  obstacleX: obstacleX,
+                  obstacleWord: obstacleWord,
+                  screenWidth: constraints.maxWidth,
+                  screenHeight: constraints.maxHeight,
+                ),
+                size: Size(constraints.maxWidth, constraints.maxHeight),
+              );
+            },
           ),
 
-          // Vocabulary Prompt
+          // Vocabulary Prompt - Made responsive positioning
           if (currentWord != null && waitingForAnswer)
             Positioned(
-              top: 40,
+              top: screenHeight * 0.05,
               left: 0,
               right: 0,
               child: Center(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 30,
-                    vertical: 15,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: screenWidth * 0.05,
+                    vertical: screenHeight * 0.015,
                   ),
+                  margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(15),
@@ -639,24 +654,25 @@ class _MainGameScreenState extends State<MainGameScreen>
                     currentChallenge == ChallengeType.jumpingGap
                         ? 'Translate: ${currentWord!.english}'
                         : 'Jump over: ${currentWord!.english}',
-                    style: const TextStyle(
-                      fontSize: 24,
+                    style: TextStyle(
+                      fontSize: screenWidth * 0.045,
                       fontWeight: FontWeight.bold,
                       color: Colors.black87,
                     ),
+                    textAlign: TextAlign.center,
                   ),
                 ),
               ),
             ),
 
-          // Score Display
+          // Score Display - Made responsive positioning and sizing
           Positioned(
-            top: 40,
-            left: 20,
+            top: screenHeight * 0.05,
+            left: screenWidth * 0.04,
             child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 10,
+              padding: EdgeInsets.symmetric(
+                horizontal: screenWidth * 0.04,
+                vertical: screenHeight * 0.01,
               ),
               decoration: BoxDecoration(
                 color: Colors.black.withOpacity(0.5),
@@ -664,8 +680,8 @@ class _MainGameScreenState extends State<MainGameScreen>
               ),
               child: Text(
                 'Score: ${score ~/ 10}',
-                style: const TextStyle(
-                  fontSize: 20,
+                style: TextStyle(
+                  fontSize: screenWidth * 0.04,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
@@ -673,16 +689,16 @@ class _MainGameScreenState extends State<MainGameScreen>
             ),
           ),
 
-          // Jump Button (for sliding obstacle)
+          // Jump Button (for sliding obstacle) - Made responsive positioning and sizing
           if (currentChallenge == ChallengeType.slidingObstacle)
             Positioned(
-              bottom: 40,
-              right: 40,
+              bottom: screenHeight * 0.05,
+              right: screenWidth * 0.05,
               child: GestureDetector(
                 onTap: _handleJumpButton,
                 child: Container(
-                  width: 80,
-                  height: 80,
+                  width: screenWidth * 0.15,
+                  height: screenWidth * 0.15,
                   decoration: BoxDecoration(
                     color: Colors.orange,
                     shape: BoxShape.circle,
@@ -694,11 +710,11 @@ class _MainGameScreenState extends State<MainGameScreen>
                       ),
                     ],
                   ),
-                  child: const Center(
+                  child: Center(
                     child: Text(
                       'JUMP',
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: screenWidth * 0.03,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
@@ -712,7 +728,7 @@ class _MainGameScreenState extends State<MainGameScreen>
           if (currentChallenge == ChallengeType.jumpingGap &&
               waitingForAnswer &&
               challengeX > 0 &&
-              challengeX < 800)
+              challengeX < screenWidth)
             ...List.generate(3, (index) {
               final platformX = challengeX + (index * 120);
               return Positioned(
@@ -736,7 +752,7 @@ class _MainGameScreenState extends State<MainGameScreen>
 
 enum ChallengeType { jumpingGap, slidingObstacle }
 
-// Custom Painter for game elements
+// Custom Painter for game elements - Added screen dimensions parameters
 class GamePainter extends CustomPainter {
   final double characterX;
   final double characterY;
@@ -745,6 +761,8 @@ class GamePainter extends CustomPainter {
   final List<String> options;
   final double obstacleX;
   final String obstacleWord;
+  final double screenWidth;
+  final double screenHeight;
 
   GamePainter({
     required this.characterX,
@@ -754,17 +772,21 @@ class GamePainter extends CustomPainter {
     required this.options,
     required this.obstacleX,
     required this.obstacleWord,
+    required this.screenWidth,
+    required this.screenHeight,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
+    final groundY = size.height * 0.7;
+    
     // Draw ground
     final groundPaint = Paint()
       ..color = Colors.green.shade700
       ..style = PaintingStyle.fill;
 
     canvas.drawRect(
-      Rect.fromLTWH(0, 350, size.width, size.height - 350),
+      Rect.fromLTWH(0, groundY, size.width, size.height - groundY),
       groundPaint,
     );
 
@@ -775,10 +797,13 @@ class GamePainter extends CustomPainter {
 
     for (int i = 0; i < size.width; i += 30) {
       canvas.drawRect(
-        Rect.fromLTWH(i, 350, 20, 10),
+        Rect.fromLTWH(i, groundY, 20, 10),
         grassPaint,
       );
     }
+
+    final characterWidth = size.width * 0.08;
+    final characterHeight = size.height * 0.1;
 
     // Draw character
     final characterPaint = Paint()
@@ -788,8 +813,8 @@ class GamePainter extends CustomPainter {
     // Character body
     canvas.drawRRect(
       RRect.fromRectAndRadius(
-        Rect.fromLTWH(characterX, characterY, 40, 50),
-        const Radius.circular(10),
+        Rect.fromLTWH(characterX, characterY, characterWidth, characterHeight),
+        Radius.circular(characterWidth * 0.25),
       ),
       characterPaint,
     );
@@ -800,34 +825,40 @@ class GamePainter extends CustomPainter {
       ..style = PaintingStyle.fill;
 
     canvas.drawCircle(
-      Offset(characterX + 20, characterY - 10),
-      15,
+      Offset(characterX + characterWidth / 2, characterY - characterHeight * 0.2),
+      characterWidth * 0.375,
       headPaint,
     );
 
     // Draw challenges
     if (currentChallenge == ChallengeType.jumpingGap) {
-      _drawJumpingGap(canvas, size);
+      _drawJumpingGap(canvas, size, groundY);
     } else if (currentChallenge == ChallengeType.slidingObstacle) {
-      _drawSlidingObstacle(canvas, size);
+      _drawSlidingObstacle(canvas, size, groundY);
     }
   }
 
-  void _drawJumpingGap(Canvas canvas, Size size) {
+  void _drawJumpingGap(Canvas canvas, Size size, double groundY) {
+    final gapWidth = size.width * 0.15;
+    
     // Draw gap
     final gapPaint = Paint()
       ..color = Colors.brown.shade800
       ..style = PaintingStyle.fill;
 
     canvas.drawRect(
-      Rect.fromLTWH(challengeX - 50, 350, 400, 100),
+      Rect.fromLTWH(challengeX - 50, groundY, gapWidth + 100, 100),
       gapPaint,
     );
 
+    final platformWidth = size.width * 0.2;
+    final platformHeight = size.height * 0.08;
+    final platformSpacing = size.width * 0.25;
+
     // Draw three platforms with options
     for (int i = 0; i < 3; i++) {
-      final platformX = challengeX + (i * 120);
-      final platformY = 200 + (i * 50.0);
+      final platformX = challengeX + (i * platformSpacing);
+      final platformY = size.height * 0.4 + (i * platformHeight * 1.2);
 
       // Platform
       final platformPaint = Paint()
@@ -836,7 +867,7 @@ class GamePainter extends CustomPainter {
 
       canvas.drawRRect(
         RRect.fromRectAndRadius(
-          Rect.fromLTWH(platformX, platformY, 100, 40),
+          Rect.fromLTWH(platformX, platformY, platformWidth, platformHeight),
           const Radius.circular(5),
         ),
         platformPaint,
@@ -850,20 +881,20 @@ class GamePainter extends CustomPainter {
 
       canvas.drawRRect(
         RRect.fromRectAndRadius(
-          Rect.fromLTWH(platformX, platformY, 100, 40),
+          Rect.fromLTWH(platformX, platformY, platformWidth, platformHeight),
           const Radius.circular(5),
         ),
         borderPaint,
       );
 
-      // Draw text on platform
+      // Draw text on platform - Responsive font size
       if (i < options.length) {
         final textPainter = TextPainter(
           text: TextSpan(
             text: options[i],
-            style: const TextStyle(
+            style: TextStyle(
               color: Colors.white,
-              fontSize: 16,
+              fontSize: size.width * 0.03,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -874,15 +905,18 @@ class GamePainter extends CustomPainter {
         textPainter.paint(
           canvas,
           Offset(
-            platformX + 50 - textPainter.width / 2,
-            platformY + 20 - textPainter.height / 2,
+            platformX + platformWidth / 2 - textPainter.width / 2,
+            platformY + platformHeight / 2 - textPainter.height / 2,
           ),
         );
       }
     }
   }
 
-  void _drawSlidingObstacle(Canvas canvas, Size size) {
+  void _drawSlidingObstacle(Canvas canvas, Size size, double groundY) {
+    final obstacleWidth = size.width * 0.1;
+    final obstacleHeight = size.height * 0.12;
+    
     // Draw obstacle (rock)
     final obstaclePaint = Paint()
       ..color = Colors.grey.shade700
@@ -890,8 +924,8 @@ class GamePainter extends CustomPainter {
 
     canvas.drawRRect(
       RRect.fromRectAndRadius(
-        Rect.fromLTWH(obstacleX, 300, 50, 50),
-        const Radius.circular(10),
+        Rect.fromLTWH(obstacleX, groundY - obstacleHeight, obstacleWidth, obstacleHeight),
+        Radius.circular(obstacleWidth * 0.2),
       ),
       obstaclePaint,
     );
@@ -904,19 +938,19 @@ class GamePainter extends CustomPainter {
 
     canvas.drawRRect(
       RRect.fromRectAndRadius(
-        Rect.fromLTWH(obstacleX, 300, 50, 50),
-        const Radius.circular(10),
+        Rect.fromLTWH(obstacleX, groundY - obstacleHeight, obstacleWidth, obstacleHeight),
+        Radius.circular(obstacleWidth * 0.2),
       ),
       borderPaint,
     );
 
-    // Draw word on obstacle
+    // Draw word on obstacle - Responsive font size
     final textPainter = TextPainter(
       text: TextSpan(
         text: obstacleWord,
-        style: const TextStyle(
+        style: TextStyle(
           color: Colors.white,
-          fontSize: 14,
+          fontSize: size.width * 0.025,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -927,8 +961,8 @@ class GamePainter extends CustomPainter {
     textPainter.paint(
       canvas,
       Offset(
-        obstacleX + 25 - textPainter.width / 2,
-        obstacleX < 200 ? 260 : 310, // Show above when close
+        obstacleX + obstacleWidth / 2 - textPainter.width / 2,
+        obstacleX < 200 ? groundY - obstacleHeight - 30 : groundY - obstacleHeight / 2,
       ),
     );
   }
