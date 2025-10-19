@@ -110,8 +110,8 @@ export default function LingoLeapGame() {
 
   const CANVAS_WIDTH = canvasDimensions.width
   const CANVAS_HEIGHT = canvasDimensions.height
-  const PLAYER_WIDTH = CANVAS_WIDTH * 0.05
-  const PLAYER_HEIGHT = CANVAS_HEIGHT * 0.1
+  const PLAYER_WIDTH = 40 // Fixed width for consistent character proportions
+  const PLAYER_HEIGHT = 50 // Fixed height for consistent character proportions
   const GROUND_Y = CANVAS_HEIGHT * 0.7
   const GRAVITY = 0.6
   const JUMP_FORCE = -15
@@ -120,13 +120,13 @@ export default function LingoLeapGame() {
     const updateCanvasSize = () => {
       if (containerRef.current) {
         const containerWidth = containerRef.current.clientWidth
-        const maxWidth = Math.min(containerWidth - 32, 800) // Max 800px or container width
-        const aspectRatio = 500 / 800
+        const maxWidth = Math.min(containerWidth - 32, 800)
+        const aspectRatio = 500 / 800 // 16:10 aspect ratio
         const height = maxWidth * aspectRatio
 
         setCanvasDimensions({
           width: maxWidth,
-          height: Math.max(height, 400), // Minimum height of 400px
+          height: height,
         })
       }
     }
@@ -445,6 +445,9 @@ export default function LingoLeapGame() {
     const gameLoop = () => {
       const state = gameStateRef.current
 
+      const scaleX = CANVAS_WIDTH / 800
+      const scaleY = CANVAS_HEIGHT / 500
+
       const skyGradient = ctx.createLinearGradient(0, 0, 0, CANVAS_HEIGHT)
       skyGradient.addColorStop(0, "#87CEEB")
       skyGradient.addColorStop(0.7, "#B0E0E6")
@@ -463,19 +466,19 @@ export default function LingoLeapGame() {
         // Draw cloud
         ctx.fillStyle = "rgba(255, 255, 255, 0.8)"
         ctx.beginPath()
-        ctx.arc(cloud.x, cloud.y, cloud.size * 0.5, 0, Math.PI * 2)
-        ctx.arc(cloud.x + cloud.size * 0.4, cloud.y, cloud.size * 0.4, 0, Math.PI * 2)
-        ctx.arc(cloud.x + cloud.size * 0.7, cloud.y, cloud.size * 0.35, 0, Math.PI * 2)
-        ctx.arc(cloud.x - cloud.size * 0.3, cloud.y, cloud.size * 0.35, 0, Math.PI * 2)
+        ctx.arc(cloud.x * scaleX, cloud.y * scaleY, cloud.size * 0.5 * scaleX, 0, Math.PI * 2)
+        ctx.arc((cloud.x + cloud.size * 0.4) * scaleX, cloud.y * scaleY, cloud.size * 0.4 * scaleX, 0, Math.PI * 2)
+        ctx.arc((cloud.x + cloud.size * 0.7) * scaleX, cloud.y * scaleY, cloud.size * 0.35 * scaleX, 0, Math.PI * 2)
+        ctx.arc((cloud.x - cloud.size * 0.3) * scaleX, cloud.y * scaleY, cloud.size * 0.35 * scaleX, 0, Math.PI * 2)
         ctx.fill()
       })
 
       ctx.fillStyle = "#90EE90"
       ctx.beginPath()
-      ctx.moveTo(0, GROUND_Y + 20) // Use responsive GROUND_Y
-      for (let i = 0; i <= CANVAS_WIDTH; i += 50) {
-        const offset = Math.sin((i + state.gameSpeed * 2) * 0.02) * 20
-        ctx.lineTo(i, GROUND_Y + 20 + offset) // Use responsive GROUND_Y
+      ctx.moveTo(0, GROUND_Y + 20 * scaleY) // Use responsive GROUND_Y
+      for (let i = 0; i <= CANVAS_WIDTH; i += 50 * scaleX) {
+        const offset = Math.sin((i + state.gameSpeed * 2) * 0.02) * 20 * scaleY
+        ctx.lineTo(i, GROUND_Y + 20 * scaleY + offset) // Use responsive GROUND_Y
       }
       ctx.lineTo(CANVAS_WIDTH, CANVAS_HEIGHT)
       ctx.lineTo(0, CANVAS_HEIGHT)
@@ -483,20 +486,25 @@ export default function LingoLeapGame() {
       ctx.fill()
 
       ctx.fillStyle = "#8B4513"
-      ctx.fillRect(0, GROUND_Y + PLAYER_HEIGHT, CANVAS_WIDTH, CANVAS_HEIGHT - GROUND_Y - PLAYER_HEIGHT) // Use responsive values
+      ctx.fillRect(
+        0,
+        GROUND_Y + PLAYER_HEIGHT * scaleY,
+        CANVAS_WIDTH,
+        CANVAS_HEIGHT - GROUND_Y - PLAYER_HEIGHT * scaleY,
+      ) // Use responsive values
 
       // Draw grass on top of ground
       ctx.fillStyle = "#228B22"
-      ctx.fillRect(0, GROUND_Y + PLAYER_HEIGHT, CANVAS_WIDTH, 10) // Use responsive GROUND_Y
+      ctx.fillRect(0, GROUND_Y + PLAYER_HEIGHT * scaleY, CANVAS_WIDTH, 10 * scaleY) // Use responsive GROUND_Y
 
       // Draw grass blades
       ctx.strokeStyle = "#2F8B2F"
-      ctx.lineWidth = 2
-      for (let i = 0; i < CANVAS_WIDTH; i += 8) {
-        const grassX = i + ((state.gameSpeed * 2) % 8)
+      ctx.lineWidth = 2 * scaleX
+      for (let i = 0; i < CANVAS_WIDTH; i += 8 * scaleX) {
+        const grassX = i + ((state.gameSpeed * 2) % (8 * scaleX))
         ctx.beginPath()
-        ctx.moveTo(grassX, GROUND_Y + PLAYER_HEIGHT + 10) // Use responsive GROUND_Y
-        ctx.lineTo(grassX - 2, GROUND_Y + PLAYER_HEIGHT + 3) // Use responsive GROUND_Y
+        ctx.moveTo(grassX, GROUND_Y + PLAYER_HEIGHT * scaleY + 10 * scaleY) // Use responsive GROUND_Y
+        ctx.lineTo(grassX - 2 * scaleX, GROUND_Y + PLAYER_HEIGHT * scaleY + 3 * scaleY) // Use responsive GROUND_Y
         ctx.stroke()
       }
 
@@ -511,36 +519,36 @@ export default function LingoLeapGame() {
 
         // Draw tree trunk
         ctx.fillStyle = "#654321"
-        ctx.fillRect(tree.x - 8, GROUND_Y + PLAYER_HEIGHT - 40, 16, 40) // Use responsive GROUND_Y
+        ctx.fillRect((tree.x - 8) * scaleX, GROUND_Y + PLAYER_HEIGHT * scaleY - 40 * scaleY, 16 * scaleX, 40 * scaleY) // Use responsive GROUND_Y
 
         // Draw tree foliage
         if (tree.type === 0) {
           // Round tree
           ctx.fillStyle = "#228B22"
           ctx.beginPath()
-          ctx.arc(tree.x, GROUND_Y + PLAYER_HEIGHT - 50, 30, 0, Math.PI * 2) // Use responsive GROUND_Y
+          ctx.arc(tree.x * scaleX, GROUND_Y + PLAYER_HEIGHT * scaleY - 50 * scaleY, 30 * scaleX, 0, Math.PI * 2) // Use responsive GROUND_Y
           ctx.fill()
 
           // Darker shade for depth
           ctx.fillStyle = "#1a6b1a"
           ctx.beginPath()
-          ctx.arc(tree.x - 10, GROUND_Y + PLAYER_HEIGHT - 55, 20, 0, Math.PI * 2) // Use responsive GROUND_Y
+          ctx.arc((tree.x - 10) * scaleX, GROUND_Y + PLAYER_HEIGHT * scaleY - 55 * scaleY, 20 * scaleX, 0, Math.PI * 2) // Use responsive GROUND_Y
           ctx.fill()
         } else {
           // Triangle tree
           ctx.fillStyle = "#228B22"
           ctx.beginPath()
-          ctx.moveTo(tree.x, GROUND_Y + PLAYER_HEIGHT - 70) // Use responsive GROUND_Y
-          ctx.lineTo(tree.x - 25, GROUND_Y + PLAYER_HEIGHT - 30) // Use responsive GROUND_Y
-          ctx.lineTo(tree.x + 25, GROUND_Y + PLAYER_HEIGHT - 30) // Use responsive GROUND_Y
+          ctx.moveTo(tree.x * scaleX, GROUND_Y + PLAYER_HEIGHT * scaleY - 70 * scaleY) // Use responsive GROUND_Y
+          ctx.lineTo((tree.x - 25) * scaleX, GROUND_Y + PLAYER_HEIGHT * scaleY - 30 * scaleY) // Use responsive GROUND_Y
+          ctx.lineTo((tree.x + 25) * scaleX, GROUND_Y + PLAYER_HEIGHT * scaleY - 30 * scaleY) // Use responsive GROUND_Y
           ctx.closePath()
           ctx.fill()
 
           // Second layer
           ctx.beginPath()
-          ctx.moveTo(tree.x, GROUND_Y + PLAYER_HEIGHT - 55) // Use responsive GROUND_Y
-          ctx.lineTo(tree.x - 20, GROUND_Y + PLAYER_HEIGHT - 25) // Use responsive GROUND_Y
-          ctx.lineTo(tree.x + 20, GROUND_Y + PLAYER_HEIGHT - 25) // Use responsive GROUND_Y
+          ctx.moveTo(tree.x * scaleX, GROUND_Y + PLAYER_HEIGHT * scaleY - 55 * scaleY) // Use responsive GROUND_Y
+          ctx.lineTo((tree.x - 20) * scaleX, GROUND_Y + PLAYER_HEIGHT * scaleY - 25 * scaleY) // Use responsive GROUND_Y
+          ctx.lineTo((tree.x + 20) * scaleX, GROUND_Y + PLAYER_HEIGHT * scaleY - 25 * scaleY) // Use responsive GROUND_Y
           ctx.closePath()
           ctx.fill()
         }
@@ -562,11 +570,11 @@ export default function LingoLeapGame() {
       const playerY = state.isSliding ? state.playerY + PLAYER_HEIGHT / 2 : state.playerY
 
       ctx.fillStyle = "#FF6B6B"
-      ctx.fillRect(state.playerX, playerY, PLAYER_WIDTH, playerHeight) // Use responsive values
+      ctx.fillRect(state.playerX * scaleX, playerY * scaleY, PLAYER_WIDTH * scaleX, playerHeight * scaleY) // Use responsive values
 
       ctx.fillStyle = "#000"
-      ctx.fillRect(state.playerX + 10, playerY + 10, 5, 5)
-      ctx.fillRect(state.playerX + 25, playerY + 10, 5, 5)
+      ctx.fillRect((state.playerX + 10) * scaleX, (playerY + 10) * scaleY, 5 * scaleX, 5 * scaleY)
+      ctx.fillRect((state.playerX + 25) * scaleX, (playerY + 10) * scaleY, 5 * scaleX, 5 * scaleY)
 
       if (currentChallenge) {
         currentChallenge.x -= state.gameSpeed
@@ -591,76 +599,94 @@ export default function LingoLeapGame() {
         }
 
         if (currentChallenge.type === "jump") {
-          const gapWidth = 80
-          const gapDepth = 100
+          const gapWidth = 80 * scaleX
+          const gapDepth = 100 * scaleY
 
           // Draw the pit/chasm with depth
           // Top edge highlight
           ctx.fillStyle = "#654321"
-          ctx.fillRect(currentChallenge.x - 5, GROUND_Y + PLAYER_HEIGHT, gapWidth + 10, 5) // Use responsive GROUND_Y
+          ctx.fillRect(
+            currentChallenge.x * scaleX - 5 * scaleX,
+            GROUND_Y + PLAYER_HEIGHT * scaleY,
+            gapWidth + 10 * scaleX,
+            5 * scaleY,
+          ) // Use responsive GROUND_Y
 
           // Main pit - gradient from dark at bottom to lighter at top
           const pitGradient = ctx.createLinearGradient(
-            currentChallenge.x,
-            GROUND_Y + PLAYER_HEIGHT, // Use responsive GROUND_Y
-            currentChallenge.x,
-            GROUND_Y + PLAYER_HEIGHT + gapDepth, // Use responsive GROUND_Y
+            currentChallenge.x * scaleX,
+            GROUND_Y + PLAYER_HEIGHT * scaleY, // Use responsive GROUND_Y
+            currentChallenge.x * scaleX,
+            GROUND_Y + PLAYER_HEIGHT * scaleY + gapDepth, // Use responsive GROUND_Y
           )
           pitGradient.addColorStop(0, "#1a1a1a")
           pitGradient.addColorStop(0.3, "#0d0d0d")
           pitGradient.addColorStop(1, "#000000")
           ctx.fillStyle = pitGradient
-          ctx.fillRect(currentChallenge.x, GROUND_Y + PLAYER_HEIGHT, gapWidth, gapDepth) // Use responsive GROUND_Y
+          ctx.fillRect(currentChallenge.x * scaleX, GROUND_Y + PLAYER_HEIGHT * scaleY, gapWidth, gapDepth) // Use responsive GROUND_Y
 
           // Left wall shadow (darker)
           const leftWallGradient = ctx.createLinearGradient(
-            currentChallenge.x,
-            GROUND_Y + PLAYER_HEIGHT, // Use responsive GROUND_Y
-            currentChallenge.x + 15,
-            GROUND_Y + PLAYER_HEIGHT, // Use responsive GROUND_Y
+            currentChallenge.x * scaleX,
+            GROUND_Y + PLAYER_HEIGHT * scaleY, // Use responsive GROUND_Y
+            currentChallenge.x * scaleX + 15 * scaleX,
+            GROUND_Y + PLAYER_HEIGHT * scaleY, // Use responsive GROUND_Y
           )
           leftWallGradient.addColorStop(0, "#2a1810")
           leftWallGradient.addColorStop(1, "rgba(42, 24, 16, 0)")
           ctx.fillStyle = leftWallGradient
-          ctx.fillRect(currentChallenge.x, GROUND_Y + PLAYER_HEIGHT, 15, gapDepth) // Use responsive GROUND_Y
+          ctx.fillRect(currentChallenge.x * scaleX, GROUND_Y + PLAYER_HEIGHT * scaleY, 15 * scaleX, gapDepth) // Use responsive GROUND_Y
 
           // Right wall shadow
           const rightWallGradient = ctx.createLinearGradient(
-            currentChallenge.x + gapWidth - 15,
-            GROUND_Y + PLAYER_HEIGHT, // Use responsive GROUND_Y
-            currentChallenge.x + gapWidth,
-            GROUND_Y + PLAYER_HEIGHT, // Use responsive GROUND_Y
+            currentChallenge.x * scaleX + gapWidth - 15 * scaleX,
+            GROUND_Y + PLAYER_HEIGHT * scaleY, // Use responsive GROUND_Y
+            currentChallenge.x * scaleX + gapWidth,
+            GROUND_Y + PLAYER_HEIGHT * scaleY, // Use responsive GROUND_Y
           )
           rightWallGradient.addColorStop(0, "rgba(42, 24, 16, 0)")
           rightWallGradient.addColorStop(1, "#2a1810")
           ctx.fillStyle = rightWallGradient
-          ctx.fillRect(currentChallenge.x + gapWidth - 15, GROUND_Y + PLAYER_HEIGHT, 15, gapDepth) // Use responsive GROUND_Y
+          ctx.fillRect(
+            currentChallenge.x * scaleX + gapWidth - 15 * scaleX,
+            GROUND_Y + PLAYER_HEIGHT * scaleY,
+            15 * scaleX,
+            gapDepth,
+          ) // Use responsive GROUND_Y
 
           // Add some cracks on the edges
           ctx.strokeStyle = "#4a3020"
-          ctx.lineWidth = 2
+          ctx.lineWidth = 2 * scaleX
           ctx.beginPath()
-          ctx.moveTo(currentChallenge.x - 3, GROUND_Y + PLAYER_HEIGHT) // Use responsive GROUND_Y
-          ctx.lineTo(currentChallenge.x + 5, GROUND_Y + PLAYER_HEIGHT + 15) // Use responsive GROUND_Y
+          ctx.moveTo(currentChallenge.x * scaleX - 3 * scaleX, GROUND_Y + PLAYER_HEIGHT * scaleY) // Use responsive GROUND_Y
+          ctx.lineTo(currentChallenge.x * scaleX + 5 * scaleX, GROUND_Y + PLAYER_HEIGHT * scaleY + 15 * scaleY) // Use responsive GROUND_Y
           ctx.stroke()
 
           ctx.beginPath()
-          ctx.moveTo(currentChallenge.x + gapWidth + 3, GROUND_Y + PLAYER_HEIGHT) // Use responsive GROUND_Y
-          ctx.lineTo(currentChallenge.x + gapWidth - 5, GROUND_Y + PLAYER_HEIGHT + 15) // Use responsive GROUND_Y
+          ctx.moveTo(currentChallenge.x * scaleX + gapWidth + 3 * scaleX, GROUND_Y + PLAYER_HEIGHT * scaleY) // Use responsive GROUND_Y
+          ctx.lineTo(
+            currentChallenge.x * scaleX + gapWidth - 5 * scaleX,
+            GROUND_Y + PLAYER_HEIGHT * scaleY + 15 * scaleY,
+          ) // Use responsive GROUND_Y
           ctx.stroke()
 
           // Bottom of pit (very dark with some detail)
           ctx.fillStyle = "#050505"
-          ctx.fillRect(currentChallenge.x + 10, GROUND_Y + PLAYER_HEIGHT + gapDepth - 20, gapWidth - 20, 20) // Use responsive GROUND_Y
+          ctx.fillRect(
+            currentChallenge.x * scaleX + 10 * scaleX,
+            GROUND_Y + PLAYER_HEIGHT * scaleY + gapDepth - 20 * scaleY,
+            gapWidth - 20 * scaleX,
+            20 * scaleY,
+          ) // Use responsive GROUND_Y
 
           // Add some spikes or rocks at the bottom for danger
           ctx.fillStyle = "#1a1a1a"
           for (let i = 0; i < 4; i++) {
-            const spikeX = currentChallenge.x + 15 + i * 15
+            const spikeX = currentChallenge.x * scaleX + 15 * scaleX + i * 15 * scaleX
             ctx.beginPath()
-            ctx.moveTo(spikeX, GROUND_Y + PLAYER_HEIGHT + gapDepth - 5) // Use responsive GROUND_Y
-            ctx.lineTo(spikeX + 5, GROUND_Y + PLAYER_HEIGHT + gapDepth - 20) // Use responsive GROUND_Y
-            ctx.lineTo(spikeX + 10, GROUND_Y + PLAYER_HEIGHT + gapDepth - 5) // Use responsive GROUND_Y
+            ctx.moveTo(spikeX, GROUND_Y + PLAYER_HEIGHT * scaleY + gapDepth - 5 * scaleY) // Use responsive GROUND_Y
+            ctx.lineTo(spikeX + 5 * scaleX, GROUND_Y + PLAYER_HEIGHT * scaleY + gapDepth - 20 * scaleY) // Use responsive GROUND_Y
+            ctx.lineTo(spikeX + 10 * scaleX, GROUND_Y + PLAYER_HEIGHT * scaleY + gapDepth - 5 * scaleY) // Use responsive GROUND_Y
             ctx.fill()
           }
 
@@ -668,25 +694,25 @@ export default function LingoLeapGame() {
           if (
             !currentChallenge.cleared &&
             state.playerX + PLAYER_WIDTH > currentChallenge.x &&
-            state.playerX < currentChallenge.x + gapWidth &&
+            state.playerX < currentChallenge.x + 80 &&
             state.playerY >= GROUND_Y && // Use responsive GROUND_Y
             !state.isJumping
           ) {
             endGame()
           }
         } else {
-          const obstacleHeight = 60
-          const obstacleWidth = 45
-          const obstacleX = currentChallenge.x
-          const obstacleY = GROUND_Y + PLAYER_HEIGHT - obstacleHeight // Use responsive GROUND_Y
+          const obstacleHeight = 60 * scaleY
+          const obstacleWidth = 45 * scaleX
+          const obstacleX = currentChallenge.x * scaleX
+          const obstacleY = GROUND_Y + PLAYER_HEIGHT * scaleY - obstacleHeight // Use responsive GROUND_Y
 
           // Log shadow on ground
           ctx.fillStyle = "rgba(0, 0, 0, 0.3)"
           ctx.ellipse(
             obstacleX + obstacleWidth / 2,
-            GROUND_Y + PLAYER_HEIGHT + 5, // Use responsive GROUND_Y
-            obstacleWidth / 2 + 5,
-            8,
+            GROUND_Y + PLAYER_HEIGHT * scaleY + 5 * scaleY, // Use responsive GROUND_Y
+            obstacleWidth / 2 + 5 * scaleX,
+            8 * scaleY,
             0,
             0,
             Math.PI * 2,
@@ -705,54 +731,67 @@ export default function LingoLeapGame() {
 
           // Left side darker (3D effect)
           ctx.fillStyle = "rgba(30, 15, 5, 0.5)"
-          ctx.fillRect(obstacleX, obstacleY, 8, obstacleHeight)
+          ctx.fillRect(obstacleX, obstacleY, 8 * scaleX, obstacleHeight)
 
           // Right side highlight
           ctx.fillStyle = "rgba(139, 90, 43, 0.4)"
-          ctx.fillRect(obstacleX + obstacleWidth - 8, obstacleY, 8, obstacleHeight)
+          ctx.fillRect(obstacleX + obstacleWidth - 8 * scaleX, obstacleY, 8 * scaleX, obstacleHeight)
 
           // Wood rings/texture
           ctx.strokeStyle = "#3a1d0d"
-          ctx.lineWidth = 2
+          ctx.lineWidth = 2 * scaleX
           for (let i = 0; i < 3; i++) {
-            const ringY = obstacleY + 15 + i * 15
+            const ringY = obstacleY + 15 * scaleY + i * 15 * scaleY
             ctx.beginPath()
-            ctx.moveTo(obstacleX + 5, ringY)
-            ctx.quadraticCurveTo(obstacleX + obstacleWidth / 2, ringY + 3, obstacleX + obstacleWidth - 5, ringY)
+            ctx.moveTo(obstacleX + 5 * scaleX, ringY)
+            ctx.quadraticCurveTo(
+              obstacleX + obstacleWidth / 2,
+              ringY + 3 * scaleY,
+              obstacleX + obstacleWidth - 5 * scaleX,
+              ringY,
+            )
             ctx.stroke()
           }
 
           // Top of log (circular end view)
           ctx.fillStyle = "#6b3410"
           ctx.beginPath()
-          ctx.ellipse(obstacleX + obstacleWidth / 2, obstacleY, obstacleWidth / 2, 10, 0, 0, Math.PI * 2)
+          ctx.ellipse(obstacleX + obstacleWidth / 2, obstacleY, obstacleWidth / 2, 10 * scaleY, 0, 0, Math.PI * 2)
           ctx.fill()
 
           // Inner ring on top
           ctx.fillStyle = "#4a2511"
           ctx.beginPath()
-          ctx.ellipse(obstacleX + obstacleWidth / 2, obstacleY, obstacleWidth / 3, 7, 0, 0, Math.PI * 2)
+          ctx.ellipse(obstacleX + obstacleWidth / 2, obstacleY, obstacleWidth / 3, 7 * scaleY, 0, 0, Math.PI * 2)
           ctx.fill()
 
           // Center dot
           ctx.fillStyle = "#2a1508"
           ctx.beginPath()
-          ctx.arc(obstacleX + obstacleWidth / 2, obstacleY, 4, 0, Math.PI * 2)
+          ctx.arc(obstacleX + obstacleWidth / 2, obstacleY, 4 * scaleX, 0, Math.PI * 2)
           ctx.fill()
 
           // Highlight on top edge
           ctx.strokeStyle = "rgba(139, 90, 43, 0.6)"
-          ctx.lineWidth = 2
+          ctx.lineWidth = 2 * scaleX
           ctx.beginPath()
-          ctx.ellipse(obstacleX + obstacleWidth / 2, obstacleY - 1, obstacleWidth / 2 - 3, 8, 0, Math.PI, 0)
+          ctx.ellipse(
+            obstacleX + obstacleWidth / 2,
+            obstacleY - 1 * scaleY,
+            obstacleWidth / 2 - 3 * scaleX,
+            8 * scaleY,
+            0,
+            Math.PI,
+            0,
+          )
           ctx.stroke()
 
           // Collision detection
           if (
             !currentChallenge.cleared &&
-            state.playerX + PLAYER_WIDTH > obstacleX &&
-            state.playerX < obstacleX + obstacleWidth &&
-            state.playerY + PLAYER_HEIGHT > obstacleY && // Use responsive values
+            state.playerX + PLAYER_WIDTH > currentChallenge.x &&
+            state.playerX < currentChallenge.x + 45 &&
+            state.playerY + PLAYER_HEIGHT > GROUND_Y + PLAYER_HEIGHT - 60 &&
             !state.isSliding
           ) {
             endGame()
@@ -771,8 +810,8 @@ export default function LingoLeapGame() {
       }
 
       ctx.fillStyle = "#000"
-      ctx.font = "bold 24px sans-serif"
-      ctx.fillText(`Score: ${score}`, 20, 40)
+      ctx.font = `bold ${24 * scaleX}px sans-serif`
+      ctx.fillText(`Score: ${score}`, 20 * scaleX, 40 * scaleY)
 
       animationFrameId = requestAnimationFrame(gameLoop)
     }
