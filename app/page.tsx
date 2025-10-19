@@ -809,14 +809,14 @@ export default function LingoLeapGame() {
   )
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-cyan-400 to-blue-500 flex items-center justify-center p-2 sm:p-4">
+    <div className="min-h-screen bg-gradient-to-b from-cyan-400 to-blue-500 flex items-center justify-center mobile-padding p-2 sm:p-4">
       <div ref={containerRef} className="w-full max-w-4xl">
         {gameState === "menu" && (
-          <Card className="p-4 sm:p-8 bg-gradient-to-b from-cyan-300 to-blue-400 border-4 border-gray-700 relative overflow-hidden">
+          <Card className="mobile-padding p-4 sm:p-8 bg-gradient-to-b from-cyan-300 to-blue-400 border-4 border-gray-700 relative overflow-hidden">
             {/* Header */}
             <div className="flex justify-between items-start mb-4 sm:mb-8 flex-wrap gap-4">
               <h1
-                className="text-3xl sm:text-5xl font-bold text-white drop-shadow-lg"
+                className="mobile-text-lg text-3xl sm:text-5xl font-bold text-white drop-shadow-lg"
                 style={{ textShadow: "3px 3px 0 #8B4513" }}
               >
                 LINGO LEAP
@@ -830,13 +830,13 @@ export default function LingoLeapGame() {
                 </div>
                 <div className="bg-yellow-400 rounded-full px-3 py-1 sm:px-4 sm:py-2 border-2 sm:border-4 border-yellow-600 flex items-center gap-1 sm:gap-2">
                   <span className="text-xl sm:text-2xl">🪙</span>
-                  <span className="text-lg sm:text-xl font-bold text-white">{levelProgress.totalCoins}</span>
+                  <span className="mobile-text-base text-lg sm:text-xl font-bold text-white">{levelProgress.totalCoins}</span>
                 </div>
               </div>
             </div>
 
             {/* Level badges */}
-            <div className="relative min-h-[300px] sm:min-h-[400px] mb-4 sm:mb-8">
+            <div className="relative min-h-[300px] sm:min-h-[400px] mb-4 sm:mb-8 mobile-level-grid">
               {LEVELS.map((level, index) => {
                 const isUnlocked = levelProgress.unlockedLevels.includes(level.id)
                 const yPosition = 30 + index * 70
@@ -845,7 +845,7 @@ export default function LingoLeapGame() {
                 return (
                   <div
                     key={level.id}
-                    className="absolute transition-all duration-300 hover:scale-110"
+                    className="absolute transition-all duration-300 hover:scale-110 mobile-level-item"
                     style={{
                       top: `${yPosition}px`,
                       left: `${xPosition}px`,
@@ -867,7 +867,7 @@ export default function LingoLeapGame() {
 
                       {/* Level label */}
                       <div className="absolute -bottom-6 sm:-bottom-8 left-1/2 -translate-x-1/2 bg-orange-400 px-2 py-0.5 sm:px-4 sm:py-1 rounded border-2 border-orange-600 whitespace-nowrap">
-                        <span className="text-xs sm:text-sm font-bold text-white drop-shadow">{level.name}</span>
+                        <span className="mobile-text-sm text-xs sm:text-sm font-bold text-white drop-shadow">{level.name}</span>
                       </div>
                     </button>
                   </div>
@@ -876,17 +876,17 @@ export default function LingoLeapGame() {
             </div>
 
             {/* Bottom navigation */}
-            <div className="flex justify-center gap-2 sm:gap-4 mt-8 sm:mt-16 flex-wrap">
+            <div className="flex justify-center gap-2 sm:gap-4 mt-8 sm:mt-16 flex-wrap mobile-stack">
               <Button
                 size="lg"
                 onClick={() => selectLevel(levelProgress.currentLevel)}
-                className="bg-blue-500 hover:bg-blue-600 text-white font-bold text-lg sm:text-xl px-6 py-4 sm:px-8 sm:py-6 rounded-full border-4 border-blue-700 shadow-lg"
+                className="mobile-text-sm bg-blue-500 hover:bg-blue-600 text-white font-bold text-lg sm:text-xl px-6 py-4 sm:px-8 sm:py-6 rounded-full border-4 border-blue-700 shadow-lg min-h-[48px] min-w-[120px]"
               >
                 PLAY
               </Button>
               <Button
                 size="lg"
-                className="bg-orange-500 hover:bg-orange-600 text-white font-bold text-lg sm:text-xl px-6 py-4 sm:px-8 sm:py-6 rounded-full border-4 border-orange-700 shadow-lg"
+                className="mobile-text-sm bg-orange-500 hover:bg-orange-600 text-white font-bold text-lg sm:text-xl px-6 py-4 sm:px-8 sm:py-6 rounded-full border-4 border-orange-700 shadow-lg min-h-[48px] min-w-[120px]"
               >
                 <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6 mr-2" />
                 STORE
@@ -894,7 +894,7 @@ export default function LingoLeapGame() {
               <Button
                 size="lg"
                 onClick={() => setGameState("admin")}
-                className="bg-blue-500 hover:bg-blue-600 text-white font-bold text-lg sm:text-xl p-4 sm:p-6 rounded-full border-4 border-blue-700 shadow-lg"
+                className="mobile-text-sm bg-blue-500 hover:bg-blue-600 text-white font-bold text-lg sm:text-xl p-4 sm:p-6 rounded-full border-4 border-blue-700 shadow-lg min-h-[48px] min-w-[48px]"
               >
                 <Settings className="w-5 h-5 sm:w-6 sm:h-6" />
               </Button>
@@ -1048,25 +1048,25 @@ export default function LingoLeapGame() {
         )}
 
         {gameState === "start" && (
-          <Card className="p-4 sm:p-8 text-center space-y-4 sm:space-y-6">
-            <h1 className="text-3xl sm:text-5xl font-bold text-primary">
+          <Card className="mobile-padding p-4 sm:p-8 text-center space-y-4 sm:space-y-6">
+            <h1 className="mobile-text-lg text-3xl sm:text-5xl font-bold text-primary">
               {LEVELS.find((l) => l.id === levelProgress.currentLevel)?.name}
             </h1>
-            <p className="text-lg sm:text-xl text-muted-foreground">Learn Spanish while you play!</p>
+            <p className="mobile-text-base text-lg sm:text-xl text-muted-foreground">Learn Spanish while you play!</p>
             <div className="space-y-2">
-              <p className="text-base sm:text-lg">Jump over gaps by selecting the correct translation</p>
-              <p className="text-base sm:text-lg">Slide under obstacles by recognizing the word</p>
-              <p className="text-xl sm:text-2xl font-bold text-primary mt-4">
+              <p className="mobile-text-sm text-base sm:text-lg">Jump over gaps by selecting the correct translation</p>
+              <p className="mobile-text-sm text-base sm:text-lg">Slide under obstacles by recognizing the word</p>
+              <p className="mobile-text-base text-xl sm:text-2xl font-bold text-primary mt-4">
                 Goal: {LEVELS.find((l) => l.id === levelProgress.currentLevel)?.pointsRequired} points
               </p>
             </div>
-            <div className="text-xl sm:text-2xl font-semibold">High Score: {highScore}</div>
-            <div className="flex gap-2 sm:gap-4 justify-center flex-wrap">
+            <div className="mobile-text-base text-xl sm:text-2xl font-semibold">High Score: {highScore}</div>
+            <div className="flex gap-2 sm:gap-4 justify-center flex-wrap mobile-stack">
               <Button
                 size="lg"
                 onClick={() => setGameState("menu")}
                 variant="outline"
-                className="text-lg sm:text-xl px-6 py-4 sm:px-8 sm:py-6"
+                className="mobile-text-sm text-lg sm:text-xl px-6 py-4 sm:px-8 sm:py-6 min-h-[48px] min-w-[120px]"
               >
                 Back to Menu
               </Button>
@@ -1079,46 +1079,45 @@ export default function LingoLeapGame() {
 
         {gameState === "playing" && (
           <div className="space-y-2 sm:space-y-4">
-            <Card className="p-2 sm:p-6">
-              <div className="flex justify-center">
+            <Card className="mobile-padding p-2 sm:p-6">
+              <div className="game-canvas-container">
                 <canvas
                   ref={canvasRef}
                   width={CANVAS_WIDTH}
                   height={CANVAS_HEIGHT}
-                  className="border-2 sm:border-4 border-primary rounded-lg w-full h-auto"
-                  style={{ maxWidth: "100%", height: "auto" }}
+                  className="border-2 sm:border-4 border-primary rounded-lg"
                 />
               </div>
             </Card>
 
             {currentChallenge && (
-              <Card className="p-3 sm:p-6">
+              <Card className="mobile-padding p-3 sm:p-6">
                 <div className="text-center space-y-2 sm:space-y-4">
-                  <div className="text-lg sm:text-2xl font-bold">
+                  <div className="mobile-text-lg text-lg sm:text-2xl font-bold">
                     {levelProgress.currentLevel === 1
                       ? currentChallenge.type === "jump"
                         ? "Translate:"
                         : "Recognize:"
                       : "Recognize:"}
                   </div>
-                  <div className="text-2xl sm:text-4xl font-bold text-primary">
-                    <span className={currentChallenge.word.length <= 3 ? "text-4xl sm:text-7xl" : ""}>
+                  <div className="mobile-text-lg text-2xl sm:text-4xl font-bold text-primary">
+                    <span className={currentChallenge.word.length <= 3 ? "text-3xl sm:text-7xl" : "mobile-text-base"}>
                       {currentChallenge.word}
                     </span>
                   </div>
-                  <div className="flex gap-2 sm:gap-4 justify-center flex-wrap">
+                  <div className="flex gap-2 sm:gap-4 justify-center flex-wrap mobile-stack">
                     {currentChallenge.options.map((option, index) => (
                       <Button
                         key={index}
                         size="lg"
                         onClick={() => (currentChallenge.type === "jump" ? handleJump(option) : handleSlide(option))}
-                        className="text-base sm:text-xl px-4 py-4 sm:px-6 sm:py-6"
+                        className="mobile-text-sm text-base sm:text-xl px-4 py-4 sm:px-6 sm:py-6 min-h-[48px] min-w-[120px]"
                       >
                         {option}
                       </Button>
                     ))}
                   </div>
-                  <div className="text-xs sm:text-sm text-muted-foreground">
+                  <div className="mobile-text-sm text-xs sm:text-sm text-muted-foreground">
                     {currentChallenge.type === "jump" ? "Click to JUMP" : "Click to SLIDE"}
                   </div>
                 </div>
@@ -1128,21 +1127,21 @@ export default function LingoLeapGame() {
         )}
 
         {gameState === "levelComplete" && (
-          <Card className="p-8 text-center space-y-6 bg-gradient-to-b from-yellow-100 to-orange-100">
-            <div className="text-8xl mb-4">🎉</div>
-            <h2 className="text-5xl font-bold text-green-600">Congratulations!</h2>
-            <p className="text-3xl font-semibold">
+          <Card className="mobile-padding p-8 text-center space-y-6 bg-gradient-to-b from-yellow-100 to-orange-100">
+            <div className="text-6xl sm:text-8xl mb-4">🎉</div>
+            <h2 className="mobile-text-lg text-5xl font-bold text-green-600">Congratulations!</h2>
+            <p className="mobile-text-base text-3xl font-semibold">
               {LEVELS.find((l) => l.id === levelProgress.currentLevel)?.name} Complete!
             </p>
             <div className="space-y-2">
-              <div className="text-3xl font-semibold">Final Score: {score}</div>
-              <div className="text-xl text-muted-foreground">You earned {Math.floor(score / 10)} coins!</div>
+              <div className="mobile-text-base text-3xl font-semibold">Final Score: {score}</div>
+              <div className="mobile-text-sm text-xl text-muted-foreground">You earned {Math.floor(score / 10)} coins!</div>
             </div>
             {levelProgress.currentLevel < LEVELS.length && (
-              <div className="text-2xl font-bold text-primary">🔓 Level {levelProgress.currentLevel + 1} Unlocked!</div>
+              <div className="mobile-text-base text-2xl font-bold text-primary">🔓 Level {levelProgress.currentLevel + 1} Unlocked!</div>
             )}
-            <div className="flex gap-4 justify-center">
-              <Button size="lg" onClick={() => setGameState("menu")} className="text-xl px-8 py-6">
+            <div className="flex gap-4 justify-center mobile-stack">
+              <Button size="lg" onClick={() => setGameState("menu")} className="mobile-text-sm text-xl px-8 py-6 min-h-[48px] min-w-[120px]">
                 Back to Menu
               </Button>
               {levelProgress.currentLevel < LEVELS.length && (
@@ -1152,7 +1151,7 @@ export default function LingoLeapGame() {
                     setLevelProgress({ ...levelProgress, currentLevel: levelProgress.currentLevel + 1 })
                     setGameState("start")
                   }}
-                  className="text-xl px-8 py-6 bg-green-600 hover:bg-green-700"
+                  className="mobile-text-sm text-xl px-8 py-6 bg-green-600 hover:bg-green-700 min-h-[48px] min-w-[120px]"
                 >
                   Next Level
                 </Button>
@@ -1162,20 +1161,20 @@ export default function LingoLeapGame() {
         )}
 
         {gameState === "gameOver" && (
-          <Card className="p-8 text-center space-y-6">
-            <h2 className="text-4xl font-bold text-destructive">Game Over!</h2>
+          <Card className="mobile-padding p-8 text-center space-y-6">
+            <h2 className="mobile-text-lg text-4xl font-bold text-destructive">Game Over!</h2>
             <div className="space-y-2">
-              <div className="text-3xl font-semibold">Final Score: {score}</div>
-              <div className="text-2xl">High Score: {highScore}</div>
-              <div className="text-xl text-muted-foreground">
+              <div className="mobile-text-base text-3xl font-semibold">Final Score: {score}</div>
+              <div className="mobile-text-base text-2xl">High Score: {highScore}</div>
+              <div className="mobile-text-sm text-xl text-muted-foreground">
                 Goal: {LEVELS.find((l) => l.id === levelProgress.currentLevel)?.pointsRequired} points
               </div>
             </div>
-            <div className="flex gap-4 justify-center">
-              <Button size="lg" onClick={() => setGameState("menu")} variant="outline" className="text-xl px-8 py-6">
+            <div className="flex gap-4 justify-center mobile-stack">
+              <Button size="lg" onClick={() => setGameState("menu")} variant="outline" className="mobile-text-sm text-xl px-8 py-6 min-h-[48px] min-w-[120px]">
                 Back to Menu
               </Button>
-              <Button size="lg" onClick={startGame} className="text-xl px-8 py-6">
+              <Button size="lg" onClick={startGame} className="mobile-text-sm text-xl px-8 py-6 min-h-[48px] min-w-[120px]">
                 Try Again
               </Button>
             </div>
