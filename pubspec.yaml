@@ -1,8 +1,6 @@
 name: lingo_leap
-description: A mobile-optimized 2D language learning game built with Flutter
-
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-
+description: A 2D language learning platformer game
+publish_to: 'none'
 version: 1.0.0+1
 
 environment:
@@ -11,12 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  
-  # State management and data persistence
   shared_preferences: ^2.2.2
-  
-  # UI and animations
-  cupertino_icons: ^1.0.6
 
 dev_dependencies:
   flutter_test:
@@ -25,14 +18,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-
-  # Assets (if you want to add custom fonts or images later)
-  # assets:
-  #   - images/
   
-  # fonts:
-  #   - family: CustomFont
-  #     fonts:
-  #       - asset: fonts/CustomFont-Regular.ttf
-  #       - asset: fonts/CustomFont-Bold.ttf
-  #         weight: 700
+  # To generate icons, run: flutter pub run flutter_launcher_icons
+  # You'll need to add flutter_launcher_icons to dev_dependencies and configure it

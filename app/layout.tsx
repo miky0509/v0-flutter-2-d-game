@@ -7,10 +7,9 @@ const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'LingoLeap - Learn Spanish while you play!',
-  description: 'A fun 2D platformer game to learn Spanish vocabulary',
+  title: 'v0 App',
+  description: 'Created with v0',
   generator: 'v0.app',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no',
 }
 
 export default function RootLayout({
